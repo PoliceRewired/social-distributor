@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using PoliceRewiredSocialDistributorLib.Social;
 
 namespace DistributeSocialApp
@@ -7,27 +8,38 @@ namespace DistributeSocialApp
     {
         static void Main(string[] args)
         {
-            var networkName = GetArg(args, 0, "network").Trim().ToLower();
-            var text = GetArg(args, 1, "text");
-            var imagePath = GetArg(args, 2, "image path", false);
+            var environment = GetArg(args, 0, "environment").Trim().ToLower();
+            var networkName = GetArg(args, 1, "network").Trim().ToLower();
+            var text = GetArg(args, 2, "text");
+            var imagePath = GetArg(args, 3, "image path", false) ?? string.Empty;
 
-            DotNetEnv.Env.Load();
-            var consumerKey = GetEnv("TWITTER-CONSUMER-KEY");
-            var consumerKeySecret = GetEnv("TWITTER-CONSUMER-KEY-SECRET");
-            var accessToken = GetEnv("TWITTER-ACCESS-TOKEN");
-            var accessTokenSecret = GetEnv("TWITTER-ACCESS-TOKEN-SECRET");
+            var envFile = ".env." + environment;
+            if (!File.Exists(envFile)) { throw new FileNotFoundException(envFile + " not found."); }
+            DotNetEnv.Env.Load(envFile);
+
+            var consumerKey = GetEnv("TWITTER_CONSUMER_KEY");
+            var consumerKeySecret = GetEnv("TWITTER_CONSUMER_KEY_SECRET");
+            var accessToken = GetEnv("TWITTER_ACCESS_TOKEN");
+            var accessTokenSecret = GetEnv("TWITTER_ACCESS_TOKEN_SECRET");
 
             var network = Enum.Parse<SocialNetwork>(networkName);
+
+            Console.WriteLine("Environment: " + environment);
+            Console.WriteLine("Network:     " + network.ToString());
+            Console.WriteLine("Text:        " + text);
+            Console.WriteLine("Image:       " + imagePath);
 
             switch (network)
             {
                 case SocialNetwork.twitter:
+                    Console.WriteLine("Tweeting...");
                     var tweeter = new Tweeter(consumerKey, consumerKeySecret, accessToken, accessTokenSecret);
-
+                    var result = tweeter.PublishToTwitter(text, imagePath);
+                    Console.WriteLine("Result: " + result);
                     break;
                 default:
                     var networks = string.Join(", ", Enum.GetNames(typeof(SocialNetwork)));
-                    throw new ArgumentOutOfRangeException("network", "Please specify a known network. Choices are: " + networks);
+                    throw new ArgumentOutOfRangeException("network", "Please specify a supported network. Choices are: " + networks);
             }
 
         }

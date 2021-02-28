@@ -12,10 +12,7 @@
     <PackageReference Include="DotNetEnv" Version="2.1.0" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove=".env" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include=".env">
+    <Content Include=".env.production">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

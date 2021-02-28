@@ -406,3 +406,4 @@ ASALocalRun/
 
 # ADDED
 .env
+.env.production
