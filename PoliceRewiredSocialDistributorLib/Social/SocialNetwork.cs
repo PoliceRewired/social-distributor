@@ -5,6 +5,7 @@ namespace PoliceRewiredSocialDistributorLib.Social
     {
         twitter,
         facebook,
-        linkedin
+        linkedin,
+        discord
     }
 }

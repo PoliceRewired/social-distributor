@@ -1,17 +1,19 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using PoliceRewiredSocialDistributorLib.Social;
+using PoliceRewiredSocialDistributorLib.Social.Posters;
 
 namespace DistributeSocialApp
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             var environment = GetArg(args, 0, "environment").Trim().ToLower();
             var networkName = GetArg(args, 1, "network").Trim().ToLower();
             var text = GetArg(args, 2, "text");
-            var imagePath = GetArg(args, 3, "image path", false) ?? string.Empty;
+            var imagePath = GetArg(args, 3, "image path", false);
 
             var envFile = ".env." + environment;
             if (!File.Exists(envFile)) { throw new FileNotFoundException(envFile + " not found."); }
@@ -33,15 +35,14 @@ namespace DistributeSocialApp
             {
                 case SocialNetwork.twitter:
                     Console.WriteLine("Tweeting...");
-                    var tweeter = new Tweeter(consumerKey, consumerKeySecret, accessToken, accessTokenSecret);
-                    var result = tweeter.PublishToTwitter(text, imagePath);
-                    Console.WriteLine("Result: " + result);
+                    var tweeter = new TwitterPoster(consumerKey, consumerKeySecret, accessToken, accessTokenSecret);
+                    var result = await tweeter.PostAsync(Post.FromText(text));
+                    Console.WriteLine("Result: " + result.Message);
                     break;
                 default:
                     var networks = string.Join(", ", Enum.GetNames(typeof(SocialNetwork)));
                     throw new ArgumentOutOfRangeException("network", "Please specify a supported network. Choices are: " + networks);
             }
-
         }
 
         public static string GetArg(string[] args, int index, string name, bool required = true)
