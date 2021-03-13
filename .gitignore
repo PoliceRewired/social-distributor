@@ -405,5 +405,3 @@ ASALocalRun/
 .localhistory/
 
 # ADDED
-.env
-.env.production

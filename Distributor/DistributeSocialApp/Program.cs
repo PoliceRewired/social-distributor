@@ -36,7 +36,13 @@ namespace DistributeSocialApp
                 case SocialNetwork.twitter:
                     Console.WriteLine("Tweeting...");
                     var tweeter = new TwitterPoster(consumerKey, consumerKeySecret, accessToken, accessTokenSecret);
-                    var result = await tweeter.PostAsync(Post.FromText(text));
+                    var result = await tweeter.PostAsync(new Post(text, imagePath));
+                    Console.WriteLine("Result: " + result.Message);
+                    break;
+                case SocialNetwork.facebook:
+                    Console.WriteLine("Facebooking...");
+                    var facebooker = new Facebooker();
+                    var result = await facebooker.PostAsync(new Post(text, imagePath));
                     Console.WriteLine("Result: " + result.Message);
                     break;
                 default:

@@ -9,10 +9,13 @@
     <ProjectReference Include="..\PoliceRewiredSocialDistributorLib\PoliceRewiredSocialDistributorLib.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="DotNetEnv" Version="2.1.0" />
+    <PackageReference Include="DotNetEnv" Version="2.1.1" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include=".env.production">
+    <None Remove=".env.prod" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include=".env.prod">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
