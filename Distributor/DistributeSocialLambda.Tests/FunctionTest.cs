@@ -14,7 +14,7 @@ namespace DistributeSocialLambda.Tests
     public class FunctionTest
     {
         [Fact]
-        public void TestDryRunNetworks()
+        public async Task TestDryRunNetworks()
         {
             var function = new Function();
             var context = new TestLambdaContext();
@@ -26,7 +26,7 @@ namespace DistributeSocialLambda.Tests
                 networks = new string[] { "twitter", "facebook", "discord" }
             };
 
-            var result = function.FunctionHandler(input, context);
+            var result = await function.FunctionHandler(input, context);
 
             Assert.Equal(result.input.command, input.command);
             Assert.Equal(result.input.message, input.message);
@@ -34,7 +34,7 @@ namespace DistributeSocialLambda.Tests
             foreach (var network in result.results)
             {
                 Assert.Contains(network.Key, input.networks);
-                Assert.NotEmpty(network.Value);
+                Assert.False(network.Value.Success);
             }
         }
     }

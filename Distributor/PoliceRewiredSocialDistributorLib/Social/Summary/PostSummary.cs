@@ -26,6 +26,15 @@ namespace PoliceRewiredSocialDistributorLib.Social.Summary
             this.failureReason = exception.Message;
         }
 
+        public PostSummary(Post post, string failure, Exception exception = null)
+        {
+            this.post = post;
+            this.posted = DateTime.Now;
+            this.success = false;
+            this.exception = exception;
+            this.failureReason = failure ?? exception?.Message ?? null;
+        }
+
         public DateTime Posted => posted;
 
         public bool Success => success;

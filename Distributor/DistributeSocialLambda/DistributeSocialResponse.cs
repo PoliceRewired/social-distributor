@@ -7,7 +7,7 @@ namespace DistributeSocialLambda
     public class DistributeSocialResponse
     {
         public DistributeSocialCommand input { get; set; }
-        public IDictionary<string,string> results { get; set; } // TODO: change to <string,IPostSummary>
+        public IDictionary<string,IPostSummary> results { get; set; }
         public double duration_secs { get; set; }
     }
 }

@@ -12,9 +12,12 @@ This tool is intended to run as an AWS lambda.
 
 After you have set up your environment and AWS cli client credentials, you can use the following scripts for quick actions:
 
+* `init.sh` - install the dotnet amazon lambda tools
 * `build.sh` - rebuild the lambda project
 * `test.sh` - run tests against the lambda project
 * `deploy.sh` - deploy the lambda project to AWS
+* `dry-run.sh` - ask the lambda to confirm it could post to all the networks (does not post)
+
 
 ### Manual testing
 
@@ -55,6 +58,8 @@ aws configure --profile sa-social-distributor
 
 ### Template
 
+To create a template lambda project:
+
 ```
 dotnet new -i Amazon.Lambda.Templates
 dotnet new lambda.EmptyFunction --help
@@ -63,23 +68,28 @@ dotnet new lambda.EmptyFunction --name DistributeSocialLambda
 
 ### Deploy
 
+The Amazon lambda tools are required (installed by `init.sh`):
+
 ```
 dotnet tool install -g Amazon.Lambda.Tools
 dotnet tool update -g Amazon.Lambda.Tools
 ```
 
+Use dotnet lambda to deploy the function naming the profile and role:
+
 ```
 dotnet lambda deploy-function --profile sa-social-distributor DistributeSocialLambda --function-role role-social-distributor
 ```
 
-If this is the first time, the new role will be created, and you'll also be asked which IAM Policy to attach to the role. Option 4, `AWSLambdaExecute`, looks about right.
+If this is the first time, the new role will be created, and you'll also be asked which IAM Policy to attach to the role. `AWSLambdaExecute`, looks about right.
 
 #### Deployment environment
 
-You can use the `--environment-variables` option to provide the various secrets, as: `<key1>=<value1>;<key2>=<value2>` etc.
+You can provide the environment variables to the lambda through AWS web interface.
+
+If you'd rather do it from the command line, you can use the `--environment-variables` option to provide the various secrets, as: `<key1>=<value1>;<key2>=<value2>` etc.
 
 You could also add an `environment-variables` key in the `aws-lambda-tools-default.json` file, but be careful not to include your secrets in a public github repo.
-
 
 ### Test
 
