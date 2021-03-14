@@ -6,7 +6,15 @@ A tool for sharing key news with our community.
 
 ### Automation
 
-This tool is intended to run as a lambda or recurring task in another environment.
+This tool is intended to run as an AWS lambda.
+
+### Scripts
+
+After you have set up your environment and AWS cli client credentials, you can use the following scripts for quick actions:
+
+* `build.sh` - rebuild the lambda project
+* `test.sh` - run tests against the lambda project
+* `deploy.sh` - deploy the lambda project to AWS
 
 ### Manual testing
 
@@ -107,8 +115,8 @@ Provide the following environment variables:
 
 Provide the following environment variables:
 
-* `FACEBOOK_PAGE_ID`
-* `FACEBOOK_ACCESS_TOKEN`
+* `FACEBOOK_PAGE_ID` - the id of the page to post to
+* `FACEBOOK_ACCESS_TOKEN` - an unlimited access token derived from the user token
 
 ### Discord
 
