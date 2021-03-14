@@ -15,6 +15,9 @@ namespace PoliceRewiredSocialDistributorLib.Social.Posters
         private bool ready = false;
         private SemaphoreSlim readySemaphore = new SemaphoreSlim(0, 1);
 
+        /// <summary>
+        /// TODO: add image posting for discord messages
+        /// </summary>
         public DiscordPoster(string token)
         {
             this.token = token;

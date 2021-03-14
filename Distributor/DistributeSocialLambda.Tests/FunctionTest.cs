@@ -14,15 +14,28 @@ namespace DistributeSocialLambda.Tests
     public class FunctionTest
     {
         [Fact]
-        public void TestToUpperFunction()
+        public void TestDryRunNetworks()
         {
-
-            // Invoke the lambda function and confirm the string was upper cased.
             var function = new Function();
             var context = new TestLambdaContext();
-            var upperCase = function.FunctionHandler("hello world", context);
 
-            Assert.Equal("HELLO WORLD", upperCase);
+            var input = new DistributeSocialCommand()
+            {
+                command = "dry-run",
+                message = "test message",
+                networks = new string[] { "twitter", "facebook", "discord" }
+            };
+
+            var result = function.FunctionHandler(input, context);
+
+            Assert.Equal(result.input.command, input.command);
+            Assert.Equal(result.input.message, input.message);
+
+            foreach (var network in result.results)
+            {
+                Assert.Contains(network.Key, input.networks);
+                Assert.NotEmpty(network.Value);
+            }
         }
     }
 }
