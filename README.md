@@ -78,7 +78,7 @@ You could also add an `environment-variables` key in the `aws-lambda-tools-defau
 Test the lambda as it stands with `dotnet lambda invoke-function`, provide the local profile and a payload.
 
 ```
-dotnet lambda invoke-function DistributeSocialLambda --profile sa-social-distributor --payload '{ command : "", networks : [ "facebook", "twitter", "discord" ],   }'
+dotnet lambda invoke-function DistributeSocialLambda --profile sa-social-distributor --payload '{ "command": "dry-run", "networks": [ "facebook", "twitter", "discord" ], "message": "test message invocation" }'
 ```
 
 ## Social network API tokens
