@@ -1,4 +1,4 @@
-﻿# Police Rewired social distributor
+﻿# Police Rewired social
 
 A tool for sharing key news with our community.
 
