@@ -20,7 +20,6 @@ namespace PoliceRewiredSocialDistributorLib.Social.Posters
             this.token = token;
             this.client = new DiscordSocketClient();
             this.client.Log += Log;
-
         }
 
         public bool Accepts(SocialNetwork network)
@@ -46,7 +45,7 @@ namespace PoliceRewiredSocialDistributorLib.Social.Posters
         public async Task<IPostSummary> PostAsync(Post post)
         {
             Console.WriteLine("Waiting to post to Discord");
-            await readySemaphore.WaitAsync();
+            if (!ready) { await readySemaphore.WaitAsync(); }
 
             var guild = client.GetGuild(post.ServerId);
             Console.WriteLine("Server: " + post.ServerId + " = " + guild.Name);
