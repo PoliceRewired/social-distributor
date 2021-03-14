@@ -13,6 +13,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\.gitignore = ..\.gitignore
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DistributeSocialLambda", "DistributeSocialLambda\DistributeSocialLambda.csproj", "{6FDBF0C2-D5BB-4DA7-9AEC-812317AC7E67}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DistributeSocialLambda.Tests", "DistributeSocialLambda.Tests\DistributeSocialLambda.Tests.csproj", "{16BBE22E-08F2-49DF-8D50-75653D4BB970}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +31,14 @@ Global
 		{2A924B02-5893-4470-9D30-1C46EF527BEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2A924B02-5893-4470-9D30-1C46EF527BEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2A924B02-5893-4470-9D30-1C46EF527BEC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6FDBF0C2-D5BB-4DA7-9AEC-812317AC7E67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6FDBF0C2-D5BB-4DA7-9AEC-812317AC7E67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6FDBF0C2-D5BB-4DA7-9AEC-812317AC7E67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6FDBF0C2-D5BB-4DA7-9AEC-812317AC7E67}.Release|Any CPU.Build.0 = Release|Any CPU
+		{16BBE22E-08F2-49DF-8D50-75653D4BB970}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{16BBE22E-08F2-49DF-8D50-75653D4BB970}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{16BBE22E-08F2-49DF-8D50-75653D4BB970}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{16BBE22E-08F2-49DF-8D50-75653D4BB970}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
