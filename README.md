@@ -18,7 +18,6 @@ After you have set up your environment and AWS cli client credentials, you can u
 * `deploy.sh` - deploy the lambda project to AWS
 * `dry-run.sh` - ask the lambda to confirm it could post to all the networks (does not post)
 
-
 ### Manual testing
 
 You can test the tool locally, and issue posts manually using the associated command line app `DistributeSocialApp`.
@@ -95,8 +94,18 @@ You could also add an `environment-variables` key in the `aws-lambda-tools-defau
 
 Test the lambda as it stands with `dotnet lambda invoke-function`, provide the local profile and a payload.
 
+You can use `dry-run.sh`, or:
+
 ```
 dotnet lambda invoke-function DistributeSocialLambda --profile sa-social-distributor --payload '{ "command": "dry-run", "networks": [ "facebook", "twitter", "discord" ], "message": "test message invocation" }'
+```
+
+### Post
+
+You can use `post-all.sh "Test message"`, or:
+
+```
+dotnet lambda invoke-function DistributeSocialLambda --profile sa-social-distributor --payload '{ "command": "post", "networks": [ "facebook", "twitter", "discord" ], "message": "Test message." }'
 ```
 
 ## Social network API tokens
