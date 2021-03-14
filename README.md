@@ -29,9 +29,9 @@ For network, provide one of: `twitter`, `facebook`, `linkedin`, `discord`
 
 ## The lambda
 
-C# lambdas: https://docs.aws.amazon.com/lambda/latest/dg/csharp-package-cli.html
-AWS CLI: https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-mac.html
-AWS Config: https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html
+* C# lambdas: https://docs.aws.amazon.com/lambda/latest/dg/csharp-package-cli.html
+* AWS CLI: https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-mac.html
+* AWS Config: https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html
 
 ### Set up AWS CLI
 
@@ -85,7 +85,7 @@ dotnet lambda invoke-function DistributeSocialLambda --profile sa-social-distrib
 
 Provide the following environment variables per network you intend to use.
 
-### Twitter
+### Twitter
 
 Provide the following environment variables:
 
@@ -96,7 +96,7 @@ Provide the following environment variables:
 
 ### Facebook
 
-See: https://ermir.net/topic-10/how-to-publish-a-message-to-a-facebook-page-using-a-dotnet-console-application
+* See: https://ermir.net/topic-10/how-to-publish-a-message-to-a-facebook-page-using-a-dotnet-console-application
 
 1. At the [Graph API Explorer](https://developers.facebook.com/tools/explorer), generate a **user token** for the right app, the right page, and with permissions: `pages_show_list`, `pages_read_engagement`, `pages_manage-posts`, `public_profile`
 2. At the [Token Debugger](https://developers.facebook.com/tools/accesstoken/), examine that user token. (Expected lifetime is ~60 days.)
@@ -120,5 +120,5 @@ Provide the following environment variables:
 
 ### LinkedIn
 
-See: https://www.linkedin.com/developers/
-See: https://docs.microsoft.com/en-gb/linkedin/consumer/integrations/self-serve/share-on-linkedin
+* See: https://www.linkedin.com/developers/
+* See: https://docs.microsoft.com/en-gb/linkedin/consumer/integrations/self-serve/share-on-linkedin
