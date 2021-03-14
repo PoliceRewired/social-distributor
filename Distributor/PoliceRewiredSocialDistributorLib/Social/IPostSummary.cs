@@ -3,9 +3,12 @@ namespace PoliceRewiredSocialDistributorLib.Social
 {
     public interface IPostSummary
     {
-        public string Message { get; }
-        public DateTime Posted { get; }
+        Post Request { get; }
+        DateTime Posted { get; }
+        bool Success { get; }
+        Exception Exception { get; }
+        string FailureReason { get; }
 
-        public Post Request { get; }
+        string Summarise();
     }
 }

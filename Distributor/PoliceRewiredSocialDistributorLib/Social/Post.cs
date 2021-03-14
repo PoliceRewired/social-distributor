@@ -8,6 +8,8 @@ namespace PoliceRewiredSocialDistributorLib.Social
         public DateTime Created { get; private set; }
         public string Message { get; private set; }
         public string ImagePath { get; private set; }
+        public ulong ServerId { get; private set; }
+        public string Channel { get; private set; }
 
         public Post(string message, string imagePath = null)
         {
@@ -20,6 +22,12 @@ namespace PoliceRewiredSocialDistributorLib.Social
             {
                 throw new FileNotFoundException("Image file not found.", imagePath);
             }
+        }
+
+        public Post(ulong serverId, string channel, string message, string imagePath = null) : this(message, imagePath)
+        {
+            ServerId = serverId;
+            Channel = channel;
         }
 
     }

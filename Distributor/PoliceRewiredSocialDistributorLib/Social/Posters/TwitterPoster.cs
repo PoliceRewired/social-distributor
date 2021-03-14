@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
+﻿using System.Threading.Tasks;
+using PoliceRewiredSocialDistributorLib.Social.Summary;
 using Tweetinvi;
-using Tweetinvi.Models;
 
 namespace PoliceRewiredSocialDistributorLib.Social.Posters
 {
+    /// <summary>
+    /// TODO: add image posting for Tweets
+    /// </summary>
     public class TwitterPoster : IPoster
     {
         private TwitterClient client;
@@ -20,6 +15,8 @@ namespace PoliceRewiredSocialDistributorLib.Social.Posters
         {
             client = new TwitterClient(consumerKey, consumerSecret, accessToken, accessTokenSecret);
         }
+
+        public async Task InitAsync() { }
 
         public bool Accepts(SocialNetwork network)
         {

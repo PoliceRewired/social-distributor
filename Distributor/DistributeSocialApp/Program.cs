@@ -16,13 +16,14 @@ namespace DistributeSocialApp
             var imagePath = GetArg(args, 3, "image path", false);
 
             var envFile = ".env." + environment;
-            if (!File.Exists(envFile)) { throw new FileNotFoundException(envFile + " not found."); }
-            DotNetEnv.Env.Load(envFile);
+            if (!File.Exists(envFile)) { throw new FileNotFoundException("Environment file not found.", envFile); }
 
-            var consumerKey = GetEnv("TWITTER_CONSUMER_KEY");
-            var consumerKeySecret = GetEnv("TWITTER_CONSUMER_KEY_SECRET");
-            var accessToken = GetEnv("TWITTER_ACCESS_TOKEN");
-            var accessTokenSecret = GetEnv("TWITTER_ACCESS_TOKEN_SECRET");
+            var vars = DotNetEnv.Env.Load(envFile);
+
+            foreach (var pair in vars)
+            {
+                Console.WriteLine("Key = " + pair.Key + "; Value = " + pair.Value);
+            }
 
             var network = Enum.Parse<SocialNetwork>(networkName);
 
@@ -34,16 +35,32 @@ namespace DistributeSocialApp
             switch (network)
             {
                 case SocialNetwork.twitter:
+                    var consumerKey = GetEnv("TWITTER_CONSUMER_KEY");
+                    var consumerKeySecret = GetEnv("TWITTER_CONSUMER_KEY_SECRET");
+                    var accessToken = GetEnv("TWITTER_ACCESS_TOKEN");
+                    var accessTokenSecret = GetEnv("TWITTER_ACCESS_TOKEN_SECRET");
                     Console.WriteLine("Tweeting...");
                     var tweeter = new TwitterPoster(consumerKey, consumerKeySecret, accessToken, accessTokenSecret);
-                    var result = await tweeter.PostAsync(new Post(text, imagePath));
-                    Console.WriteLine("Result: " + result.Message);
+                    var twSummary = await tweeter.PostAsync(new Post(text, imagePath));
+                    Console.WriteLine(twSummary.Summarise());
                     break;
                 case SocialNetwork.facebook:
+                    var pageId = long.Parse(GetEnv("FACEBOOK_PAGE_ID"));
+                    var fbToken = GetEnv("FACEBOOK_ACCESS_TOKEN");
                     Console.WriteLine("Facebooking...");
-                    var facebooker = new Facebooker();
-                    var result = await facebooker.PostAsync(new Post(text, imagePath));
-                    Console.WriteLine("Result: " + result.Message);
+                    var facebooker = new FbPoster(pageId, fbToken);
+                    var fbSummary = await facebooker.PostAsync(new Post(text, imagePath));
+                    Console.WriteLine(fbSummary.Summarise());
+                    break;
+                case SocialNetwork.discord:
+                    var discordToken = GetEnv("DISCORD_TOKEN");
+                    var discordServer = ulong.Parse(GetEnv("DISCORD_SERVER_ID"));
+                    var discordChannel = GetEnv("DISCORD_CHANNEL");
+                    Console.WriteLine("Discording...");
+                    var discorder = new DiscordPoster(discordToken);
+                    await discorder.InitAsync();
+                    var discordSummary = await discorder.PostAsync(new Post(discordServer, discordChannel, text, imagePath));
+                    Console.WriteLine(discordSummary.Summarise());
                     break;
                 default:
                     var networks = string.Join(", ", Enum.GetNames(typeof(SocialNetwork)));
@@ -78,6 +95,7 @@ namespace DistributeSocialApp
         public static string GetEnv(string key, bool required = true)
         {
             var result = DotNetEnv.Env.GetString(key);
+            Console.WriteLine("Environment variable: " + key + " = " + result);
             if (required && string.IsNullOrWhiteSpace(result))
             {
                 throw new ArgumentNullException(key, "The " + key + " environment variable is not set.");
@@ -87,5 +105,20 @@ namespace DistributeSocialApp
                 return result;
             }
         }
+
+        public static int GetEnvInt(string key, bool required = true)
+        {
+            var result = DotNetEnv.Env.GetInt(key, -1);
+            Console.WriteLine("Environment variable: " + key + " = " + result);
+            if (required && result == -1)
+            {
+                throw new ArgumentNullException(key, "The " + key + " environment variable is not set.");
+            }
+            else
+            {
+                return result;
+            }
+        }
+
     }
 }

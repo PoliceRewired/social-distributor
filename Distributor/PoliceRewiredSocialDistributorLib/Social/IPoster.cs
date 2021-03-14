@@ -7,5 +7,6 @@ namespace PoliceRewiredSocialDistributorLib.Social
     {
         bool Accepts(SocialNetwork network);
         Task<IPostSummary> PostAsync(Post post);
+        Task InitAsync();
     }
 }

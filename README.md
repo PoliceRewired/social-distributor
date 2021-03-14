@@ -16,7 +16,11 @@ You can test it, or issue posts manually using the associated command line app `
 * Create a file in the same directory as your binary called `.env.prod`
 * Place your environment variables in an env file, as `KEY=value`, one per line.
 * Save it as `.env.something` (ie. to name your environment), eg. `.env.prod`
-* Build and run the app: `dotnet run <environment> <network> "<text>"`
+* Build and run the app:
+
+```
+dotnet run <environment> <network> "<text>"
+```
 
 For environment, provide `prod` if you named your environment file `.env.prod`
 
@@ -35,7 +39,10 @@ Provide the following environment variables per network you intend to use.
 
 ### Facebook
 
-TBC
+See: https://ermir.net/topic-10/how-to-publish-a-message-to-a-facebook-page-using-a-dotnet-console-application
+
+* `FACEBOOK_PAGE_ID`
+* `FACEBOOK_ACCESS_TOKEN`
 
 ### LinkedIn
 
