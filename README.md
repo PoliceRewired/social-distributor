@@ -22,7 +22,7 @@ After you have set up your environment and AWS cli client credentials, you can u
 
 You can test the tool locally, and issue posts manually using the associated command line app `DistributeSocialApp`.
 
-* Enter the directory: `cd DistributeSocialApp`
+* Enter the directory: `cd Distributor/DistributeSocialApp`
 * Pick a name for your environment, eg. `prod`
 * Create an env file in the same directory as your binary, eg. `.env.prod`
 * Place your environment variables in the `.env.prod` file, as `KEY=value`, one per line.
