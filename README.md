@@ -80,7 +80,7 @@ Use dotnet lambda to deploy the function naming the profile and role:
 dotnet lambda deploy-function --profile sa-social-distributor DistributeSocialLambda --function-role role-social-distributor
 ```
 
-If this is the first time, the new role will be created, and you'll also be asked which IAM Policy to attach to the role. `AWSLambdaExecute`, looks about right.
+If the `role-social-distributor` role doesn't exist, you'll need to create it first. You'll also have to attach an IAM Policy to the role. `AWSLambdaExecute`, looks about right.
 
 #### Deployment environment
 
