@@ -8,6 +8,7 @@ using Amazon.Lambda.Core;
 using Amazon.Lambda.TestUtilities;
 
 using DistributeSocialLambda;
+using DistributeSocialLambda.DTO;
 
 namespace DistributeSocialLambda.Tests
 {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using PoliceRewiredSocialDistributorLib.Social;
 
-namespace DistributeSocialLambda
+namespace DistributeSocialLambda.DTO
 {
     public class DistributeSocialResponse
     {

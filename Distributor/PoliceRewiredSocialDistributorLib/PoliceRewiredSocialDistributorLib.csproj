@@ -5,13 +5,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="TweetinviAPI" Version="5.0.3" />
     <PackageReference Include="Discord.Net" Version="2.3.1" />
+    <PackageReference Include="CsvHelper" Version="26.1.0" />
+    <PackageReference Include="AWSSDK.S3" Version="3.5.10" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Social\" />
     <Folder Include="Social\Posters\" />
     <Folder Include="Social\Summary\" />
+    <Folder Include="Instruction\" />
+    <Folder Include="Helpers\" />
+    <Folder Include="Instruction\DTO\" />
   </ItemGroup>
 </Project>

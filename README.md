@@ -90,25 +90,73 @@ If you'd rather do it from the command line, you can use the `--environment-vari
 
 You could also add an `environment-variables` key in the `aws-lambda-tools-default.json` file, but be careful not to include your secrets in a public github repo.
 
-### Test
+### Invoking the lambda
 
-Test the lambda as it stands with `dotnet lambda invoke-function`, provide the local profile and a payload.
-
-You can use `dry-run.sh`, or:
+Invoke the lambda from your local machine with `dotnet lambda invoke-function`, provide the local profile and a payload.
 
 ```
-dotnet lambda invoke-function DistributeSocialLambda --profile sa-social-distributor --payload '{ "command": "dry-run", "networks": [ "facebook", "twitter", "discord" ], "message": "test message invocation" }'
+dotnet lambda invoke-function DistributeSocialLambda --profile sa-social-distributor --payload '{ some: "json here" }'
 ```
 
-### Post
+### Test Post
 
-You can use `post-all.sh "Test message"`, or:
+You can use `dry-run.sh`, or provide the following JSON:
 
+```json
+{ "command": "dry-run", "networks": [ "facebook", "twitter", "discord" ], "message": "test message invocation" }
 ```
-dotnet lambda invoke-function DistributeSocialLambda --profile sa-social-distributor --payload '{ "command": "post", "networks": [ "facebook", "twitter", "discord" ], "message": "Test message." }'
+
+### Send Post
+
+You can use `post-all.sh "Test message"`, or provide the following JSON:
+
+```json
+{ "command": "post", "networks": [ "facebook", "twitter", "discord" ], "message": "Test message." }
 ```
 
-## Social network API tokens
+### Test Auto
+
+Provide the following JSON:
+
+```json
+{ "command": "auto-dry-run", "networks": [ "facebook", "twitter", "discord" ], "postsCsvUrl": "", "rulesCsvUrl": "" }
+```
+
+### Auto Post
+
+Provide the following JSON:
+
+```json
+{ "command": "auto", "networks": [ "facebook", "twitter", "discord" ], "postsCsvUrl": "", "rulesCsvUrl": "" }
+```
+
+## CSV formats
+
+CSVs provided for auto mode show conform to the following format:
+
+### Posts CSV
+
+| ListId | Content |
+|--------|---------|
+| Identity of the list | Text to include in a post |
+
+### Rules CSV
+
+A list is selected randomly, and weighted by ratios:
+
+| ListId | Ratio |
+|--------|---------|
+| Identity of the list | Integer ratio indicating how to balance posts from this list amongst all lists. |
+
+## State variables
+
+Auto mode tracks state using a JSON file stored in an S3 bucket.
+Provide the following environment variables:
+
+* `S3_STATE_BUCKET`
+* `S3_STATE_KEY`
+
+## Social network variables
 
 Provide the following environment variables per network you intend to use.
 

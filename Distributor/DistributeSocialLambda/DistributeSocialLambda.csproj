@@ -10,8 +10,12 @@
   <ItemGroup>
     <PackageReference Include="Amazon.Lambda.Core" Version="1.2.0" />
     <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.1.0" />
+    <PackageReference Include="AWSSDK.S3" Version="3.5.10" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PoliceRewiredSocialDistributorLib\PoliceRewiredSocialDistributorLib.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="DTO\" />
   </ItemGroup>
 </Project>

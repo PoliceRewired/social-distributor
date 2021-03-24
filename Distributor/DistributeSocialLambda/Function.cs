@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using Amazon.Lambda.Core;
+using DistributeSocialLambda.DTO;
+using PoliceRewiredSocialDistributorLib.Instruction;
 using PoliceRewiredSocialDistributorLib.Social;
 using PoliceRewiredSocialDistributorLib.Social.Posters;
 using PoliceRewiredSocialDistributorLib.Social.Summary;
@@ -15,7 +17,8 @@ namespace DistributeSocialLambda
 {
     public class Function
     {
-        
+        ILambdaContext context;
+
         /// <summary>
         /// A simple function that takes a string and does a ToUpper
         /// </summary>
@@ -24,7 +27,8 @@ namespace DistributeSocialLambda
         /// <returns></returns>
         public async Task<DistributeSocialResponse> FunctionHandler(DistributeSocialCommand input, ILambdaContext context)
         {
-            var post = new Post(input.message);
+            this.context = context;
+
             var response = new DistributeSocialResponse();
             response.input = input;
             var started = DateTime.Now;
@@ -34,11 +38,21 @@ namespace DistributeSocialLambda
                 switch (input.command)
                 {
                     case "dry-run":
-                        response.results = await PostMessagesAsync(context, post, input.networks, false);
+                        var postDryRun = new Post(input.message);
+                        response.results = await PostMessagesAsync(context, postDryRun, input.networks, false);
                         break;
 
                     case "post":
+                        var post = new Post(input.message);
                         response.results = await PostMessagesAsync(context, post, input.networks, true);
+                        break;
+
+                    case "auto":
+                        response.results = await RunAutoPostAsync(context, input.postsCsvUrl, input.rulesCsvUrl, input.networks, true);
+                        break;
+
+                    case "auto-dry-run":
+                        response.results = await RunAutoPostAsync(context, input.postsCsvUrl, input.rulesCsvUrl, input.networks, false);
                         break;
 
                     default:
@@ -47,8 +61,8 @@ namespace DistributeSocialLambda
             }
             catch (Exception e)
             {
-                context.Logger.LogLine("Unexpected exception: " + e.Message);
-                context.Logger.LogLine(e.StackTrace);
+                Log("Unexpected exception: " + e.Message);
+                Log(e.StackTrace);
             }
             finally
             {
@@ -58,9 +72,26 @@ namespace DistributeSocialLambda
             return response;
         }
 
-        private async Task<Dictionary<string, IPostSummary>> PostMessagesAsync(ILambdaContext context, Post post, IEnumerable<string> networks, bool send)
+        private async Task<NetworkPostDTO> RunAutoPostAsync(ILambdaContext context, string postsCsvUrl, string rulesCsvUrl, IEnumerable<string> networks, bool send)
         {
-            var results = new Dictionary<string, IPostSummary>();
+            var results = new NetworkPostDTO();
+
+            var stateBucket = GetEnv("S3_STATE_BUCKET");
+            var stateKey = GetEnv("S3_STATE_KEY");
+
+            var manager = new ContentManager(postsCsvUrl, rulesCsvUrl, stateBucket, stateKey, Log);
+            var listContent = await manager.RunAsync();
+
+            Log("Next post comes from list: " + listContent.List);
+            Log("Next post: " + listContent.Content);
+
+            var post = new Post(listContent.Content);
+            return await PostMessagesAsync(context, post, networks, send);
+        }
+
+        private async Task<NetworkPostDTO> PostMessagesAsync(ILambdaContext context, Post post, IEnumerable<string> networks, bool send)
+        {
+            var results = new NetworkPostDTO();
 
             foreach (var networkName in networks)
             {
@@ -75,15 +106,15 @@ namespace DistributeSocialLambda
                     }
                     catch (Exception e)
                     {
-                        context.Logger.LogLine(e.Message);
-                        context.Logger.LogLine(e.StackTrace);
+                        Log(e.Message);
+                        Log(e.StackTrace);
                         results[networkName] = new PostSummary(post, e);
                     }
                 }
                 else
                 {
                     results[network.ToString()] = new PostSummary(post, "Network " + networkName + " not recognised.");
-                    context.Logger.LogLine("Network " + networkName + " not recognised.");
+                    Log("Network " + networkName + " not recognised.");
                 }
             }
 
@@ -92,7 +123,7 @@ namespace DistributeSocialLambda
 
         private async Task<IPostSummary> PostMessageAsync(ILambdaContext context, SocialNetwork network, Post post, bool send = false)
         {
-            context.Logger.LogLine("Network: " + network.ToString());
+            Log("Network: " + network.ToString());
 
             switch (network)
             {
@@ -103,15 +134,15 @@ namespace DistributeSocialLambda
                     var accessTokenSecret = GetEnv("TWITTER_ACCESS_TOKEN_SECRET");
                     if (send)
                     {
-                        context.Logger.LogLine("Tweeting...");
+                        Log("Tweeting...");
                         var tweeter = new TwitterPoster(consumerKey, consumerKeySecret, accessToken, accessTokenSecret);
                         var twSummary = await tweeter.PostAsync(post);
-                        context.Logger.LogLine(twSummary.Summarise());
+                        Log(twSummary.Summarise());
                         return twSummary;
                     }
                     else
                     {
-                        context.Logger.LogLine("Not tweeting...");
+                        Log("Not tweeting...");
                         return new PostSummary(post, "Not attempted.");
                     }
 
@@ -120,15 +151,15 @@ namespace DistributeSocialLambda
                     var fbToken = GetEnv("FACEBOOK_ACCESS_TOKEN");
                     if (send)
                     {
-                        context.Logger.LogLine("Facebooking...");
+                        Log("Facebooking...");
                         var facebooker = new FbPoster(pageId, fbToken);
                         var fbSummary = await facebooker.PostAsync(post);
-                        context.Logger.LogLine(fbSummary.Summarise());
+                        Log(fbSummary.Summarise());
                         return fbSummary;
                     }
                     else
                     {
-                        context.Logger.LogLine("Not facebooking...");
+                        Log("Not facebooking...");
                         return new PostSummary(post, "Not attempted.");
                     }
 
@@ -138,16 +169,16 @@ namespace DistributeSocialLambda
                     var discordChannel = GetEnv("DISCORD_CHANNEL");
                     if (send)
                     {
-                        context.Logger.LogLine("Discording...");
+                        Log("Discording...");
                         var discorder = new DiscordPoster(discordToken);
                         await discorder.InitAsync();
                         var discordSummary = await discorder.PostAsync(new Post(discordServer, discordChannel, post.Message, post.ImagePath));
-                        context.Logger.LogLine(discordSummary.Summarise());
+                        Log(discordSummary.Summarise());
                         return discordSummary;
                     }
                     else
                     {
-                        context.Logger.LogLine("Not discording...");
+                        Log("Not discording...");
                         return new PostSummary(post, "Not attempted.");
                     }
 
@@ -168,6 +199,11 @@ namespace DistributeSocialLambda
             {
                 return value;
             }
+        }
+
+        private void Log(string msg)
+        {
+            context.Logger.LogLine(msg);
         }
     }
 }
