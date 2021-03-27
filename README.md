@@ -4,8 +4,6 @@ A tool for sharing key news with our community.
 
 ## Usage
 
-### Automation
-
 This tool is intended to run as an AWS lambda.
 
 ### Scripts
@@ -14,11 +12,76 @@ After you have set up your environment and AWS cli client credentials, you can u
 
 * `init.sh` - install the dotnet amazon lambda tools
 * `build.sh` - rebuild the lambda project
-* `test.sh` - run tests against the lambda project
 * `deploy.sh` - deploy the lambda project to AWS
-* `dry-run.sh` - ask the lambda to confirm it could post to all the networks (does not post)
+* `post-dry-run.sh` - composes a post from the input parameters, does not send to any social networks
+* `post-message.sh` - composes a post from the input parameters, sends to the specified social networks
+* `auto-dry-run.sh` - chooses a list, and a post from that list's plan, does not send to any social networks
+* `auto-message.sh` - chooses a list, and a post from that list's plan, sends to the specified social networks
+* `recalculate-plans.sh` - recalculates the plan for each list
+* `clear-plans.sh` - clears all plans for all lists
 
-### Manual testing
+### Invoking the lambda
+
+Invoke the lambda from your local machine with `dotnet lambda invoke-function`, provide the local profile and a payload.
+
+```
+dotnet lambda invoke-function DistributeSocialLambda --profile sa-social-distributor --payload '{ some: "json here" }'
+```
+
+#### Sample inputs
+
+```json
+{ 
+    "command": "post-dry-run", 
+    "networks": [ "facebook", "twitter", "discord" ], 
+    "text": "test message invocation",
+    "tags": "#test",
+    "linkUrl": "https://policerewired.org",
+    "imageUrl": "https://policerewired.github.io/social-distributor-resources/images/test-card.jpeg"
+}
+```
+
+```json
+{ 
+    "command": "auto-dry-run", 
+    "networks": [ "facebook", "twitter", "discord" ], 
+    "postsCsvUrl": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSTur9fXXlA0eosd3jpzeOOe9Pi7Dk3T2LdKTobKjIrs2zZWZSMpwlNwDHHYl34wz1F_P2s7p7ya_3B/pub?gid=0&single=true&output=csv",
+    "rulesCsvUrl": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSTur9fXXlA0eosd3jpzeOOe9Pi7Dk3T2LdKTobKjIrs2zZWZSMpwlNwDHHYl34wz1F_P2s7p7ya_3B/pub?gid=1551543415&single=true&output=csv"
+}
+```
+
+NB. Police Rewired library posts are published as CSV for consumption by the tool, and as an open data source:
+
+* [posts](https://docs.google.com/spreadsheets/d/e/2PACX-1vSTur9fXXlA0eosd3jpzeOOe9Pi7Dk3T2LdKTobKjIrs2zZWZSMpwlNwDHHYl34wz1F_P2s7p7ya_3B/pub?gid=0&single=true&output=csv)
+* [rules](https://docs.google.com/spreadsheets/d/e/2PACX-1vSTur9fXXlA0eosd3jpzeOOe9Pi7Dk3T2LdKTobKjIrs2zZWZSMpwlNwDHHYl34wz1F_P2s7p7ya_3B/pub?gid=1551543415&single=true&output=csv)
+
+## CSV format
+
+CSVs provided for auto mode should conform to the following formats.
+
+### posts
+
+| Field | Description |
+|--------|---------|
+| ListId | Identity of the list this post belongs to. |
+| Text | Text of the post. |
+| Tags | Any tags (include the `#`, eg. `#test` |
+| URL | URL of the link this post is about. |
+| ImageURL | URL to an image. (Optional.) |
+
+Many of the images used by Police Rewired are held in the [social-distributor-resources](https://github.com/PoliceRewired/social-distributor-resources) repository.
+
+### rules
+
+For each post automatically chosen, a list is selected randomly, and weighted by ratio.
+
+| Field | Description |
+|--------|---------|
+| ListId | Identity of the list. |
+| Ratio  | Weight to attribute to the list. |
+| Tags   | Default tags to apply to posts for this list (optional). |
+
+## Manual testing
 
 You can test the tool locally, and issue posts manually using the associated command line app `DistributeSocialApp`.
 
@@ -30,127 +93,16 @@ You can test the tool locally, and issue posts manually using the associated com
 * Build and run the app:
 
 ```
-dotnet run <environment> <network> "<text>"
+dotnet run <environment> <network> <text> <tags> <link url> [<image url>]
 ```
 
-For environment, provide `prod` if you named your environment file `.env.prod`
-
-For network, provide one of: `twitter`, `facebook`, `linkedin`, `discord`
-
-## The lambda
-
-* C# lambdas: https://docs.aws.amazon.com/lambda/latest/dg/csharp-package-cli.html
-* AWS CLI: https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-mac.html
-* AWS Config: https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html
-
-### Set up AWS CLI
-
-Create a service account IAM user. In our case: `sa-social-distributor`
-
-You'll need to safely store the access key id and secret access key.
-
-Configure a local profile to match, and provide the access key id, and secret access key.
-
-```
-aws configure --profile sa-social-distributor
-```
-
-### Template
-
-To create a template lambda project:
-
-```
-dotnet new -i Amazon.Lambda.Templates
-dotnet new lambda.EmptyFunction --help
-dotnet new lambda.EmptyFunction --name DistributeSocialLambda
-```
-
-### Deploy
-
-The Amazon lambda tools are required (installed by `init.sh`):
-
-```
-dotnet tool install -g Amazon.Lambda.Tools
-dotnet tool update -g Amazon.Lambda.Tools
-```
-
-Use dotnet lambda to deploy the function naming the profile and role:
-
-```
-dotnet lambda deploy-function --profile sa-social-distributor DistributeSocialLambda --function-role role-social-distributor
-```
-
-If the `role-social-distributor` role doesn't exist, you'll need to create it first. You'll also have to attach an IAM Policy to the role. `AWSLambdaExecute`, looks about right.
-
-#### Deployment environment
-
-You can provide the environment variables to the lambda through AWS web interface.
-
-If you'd rather do it from the command line, you can use the `--environment-variables` option to provide the various secrets, as: `<key1>=<value1>;<key2>=<value2>` etc.
-
-You could also add an `environment-variables` key in the `aws-lambda-tools-default.json` file, but be careful not to include your secrets in a public github repo.
-
-### Invoking the lambda
-
-Invoke the lambda from your local machine with `dotnet lambda invoke-function`, provide the local profile and a payload.
-
-```
-dotnet lambda invoke-function DistributeSocialLambda --profile sa-social-distributor --payload '{ some: "json here" }'
-```
-
-### Test Post
-
-You can use `dry-run.sh`, or provide the following JSON:
-
-```json
-{ "command": "dry-run", "networks": [ "facebook", "twitter", "discord" ], "message": "test message invocation" }
-```
-
-### Send Post
-
-You can use `post-all.sh "Test message"`, or provide the following JSON:
-
-```json
-{ "command": "post", "networks": [ "facebook", "twitter", "discord" ], "message": "Test message." }
-```
-
-### Test Auto
-
-Provide the following JSON:
-
-```json
-{ "command": "auto-dry-run", "networks": [ "facebook", "twitter", "discord" ], "postsCsvUrl": "", "rulesCsvUrl": "" }
-```
-
-### Auto Post
-
-Provide the following JSON:
-
-```json
-{ "command": "auto", "networks": [ "facebook", "twitter", "discord" ], "postsCsvUrl": "", "rulesCsvUrl": "" }
-```
-
-## CSV formats
-
-CSVs provided for auto mode show conform to the following format:
-
-### Posts CSV
-
-| ListId | Content |
-|--------|---------|
-| Identity of the list | Text to include in a post |
-
-### Rules CSV
-
-A list is selected randomly, and weighted by ratios:
-
-| ListId | Ratio |
-|--------|---------|
-| Identity of the list | Integer ratio indicating how to balance posts from this list amongst all lists. |
+* For environment, provide `prod` if you named your environment file `.env.prod`
+* Surround values in `'single quotes'` to preserve spacing and special characters.
+* For network, provide one of: `twitter`, `facebook`, `discord`
 
 ## State variables
 
-Auto mode tracks state using a JSON file stored in an S3 bucket.
+When operating in automatic mode, the distributor keeps state using a JSON file stored in an S3 bucket.
 Provide the following environment variables:
 
 * `S3_STATE_BUCKET`

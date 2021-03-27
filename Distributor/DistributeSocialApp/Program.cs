@@ -13,7 +13,9 @@ namespace DistributeSocialApp
             var environment = GetArg(args, 0, "environment").Trim().ToLower();
             var networkName = GetArg(args, 1, "network").Trim().ToLower();
             var text = GetArg(args, 2, "text");
-            var imagePath = GetArg(args, 3, "image path", false);
+            var tags = GetArg(args, 3, "tags");
+            var link = GetArg(args, 4, "link");
+            var image = GetArg(args, 5, "image", false);
 
             var envFile = ".env." + environment;
             if (!File.Exists(envFile)) { throw new FileNotFoundException("Environment file not found.", envFile); }
@@ -30,7 +32,13 @@ namespace DistributeSocialApp
             Console.WriteLine("Environment: " + environment);
             Console.WriteLine("Network:     " + network.ToString());
             Console.WriteLine("Text:        " + text);
-            Console.WriteLine("Image:       " + imagePath);
+            Console.WriteLine("Tags:        " + tags);
+            Console.WriteLine("Link:        " + link);
+            Console.WriteLine("Image:       " + image);
+
+            var linkUri = string.IsNullOrWhiteSpace(link) ? null : new Uri(link);
+            var imageUri = string.IsNullOrWhiteSpace(image) ? null : new Uri(image);
+            var post = new Post(text, tags, linkUri, imageUri);
 
             switch (network)
             {
@@ -41,7 +49,7 @@ namespace DistributeSocialApp
                     var accessTokenSecret = GetEnv("TWITTER_ACCESS_TOKEN_SECRET");
                     Console.WriteLine("Tweeting...");
                     var tweeter = new TwitterPoster(consumerKey, consumerKeySecret, accessToken, accessTokenSecret);
-                    var twSummary = await tweeter.PostAsync(new Post(text, imagePath));
+                    var twSummary = await tweeter.PostAsync(post);
                     Console.WriteLine(twSummary.Summarise());
                     break;
                 case SocialNetwork.facebook:
@@ -49,17 +57,18 @@ namespace DistributeSocialApp
                     var fbToken = GetEnv("FACEBOOK_ACCESS_TOKEN");
                     Console.WriteLine("Facebooking...");
                     var facebooker = new FbPoster(pageId, fbToken);
-                    var fbSummary = await facebooker.PostAsync(new Post(text, imagePath));
+                    var fbSummary = await facebooker.PostAsync(post);
                     Console.WriteLine(fbSummary.Summarise());
                     break;
                 case SocialNetwork.discord:
                     var discordToken = GetEnv("DISCORD_TOKEN");
                     var discordServer = ulong.Parse(GetEnv("DISCORD_SERVER_ID"));
                     var discordChannel = GetEnv("DISCORD_CHANNEL");
+                    post.SetDiscordChannel(discordServer, discordChannel);
                     Console.WriteLine("Discording...");
                     var discorder = new DiscordPoster(discordToken);
                     await discorder.InitAsync();
-                    var discordSummary = await discorder.PostAsync(new Post(discordServer, discordChannel, text, imagePath));
+                    var discordSummary = await discorder.PostAsync(post);
                     Console.WriteLine(discordSummary.Summarise());
                     break;
                 default:

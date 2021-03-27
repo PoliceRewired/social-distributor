@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 
 using Amazon.Lambda.Core;
 using DistributeSocialLambda.DTO;
+using Newtonsoft.Json;
 using PoliceRewiredSocialDistributorLib.Instruction;
+using PoliceRewiredSocialDistributorLib.Instruction.DTO;
 using PoliceRewiredSocialDistributorLib.Social;
 using PoliceRewiredSocialDistributorLib.Social.Posters;
 using PoliceRewiredSocialDistributorLib.Social.Summary;
@@ -32,27 +34,40 @@ namespace DistributeSocialLambda
             var response = new DistributeSocialResponse();
             response.input = input;
             var started = DateTime.Now;
-
+            var cmd = input.command.ToLower().Trim();
             try
             {
-                switch (input.command)
+                switch (cmd)
                 {
-                    case "dry-run":
-                        var postDryRun = new Post(input.message);
-                        response.results = await PostMessagesAsync(context, postDryRun, input.networks, false);
+                    case "post-dry-run":
+                        response.results = await PostMessagesAsync(context, CreatePost(input), input.networks, false);
                         break;
 
-                    case "post":
-                        var post = new Post(input.message);
-                        response.results = await PostMessagesAsync(context, post, input.networks, true);
-                        break;
-
-                    case "auto":
-                        response.results = await RunAutoPostAsync(context, input.postsCsvUrl, input.rulesCsvUrl, input.networks, true);
+                    case "post-message":
+                        response.results = await PostMessagesAsync(context, CreatePost(input), input.networks, true);
                         break;
 
                     case "auto-dry-run":
-                        response.results = await RunAutoPostAsync(context, input.postsCsvUrl, input.rulesCsvUrl, input.networks, false);
+                        var postsCsvUrlADR = string.IsNullOrWhiteSpace(input.postsCsvUrl) ? GetEnv("POSTS_CSV_URL") : input.postsCsvUrl;
+                        var rulesCsvUrlADR = string.IsNullOrWhiteSpace(input.rulesCsvUrl) ? GetEnv("RULES_CSV_URL") : input.rulesCsvUrl;
+                        response.results = await RunAutoPostAsync(context, postsCsvUrlADR, rulesCsvUrlADR, input.networks, false);
+                        break;
+
+                    case "auto-message":
+                        var postsCsvUrlAM = string.IsNullOrWhiteSpace(input.postsCsvUrl) ? GetEnv("POSTS_CSV_URL") : input.postsCsvUrl;
+                        var rulesCsvUrlAM = string.IsNullOrWhiteSpace(input.rulesCsvUrl) ? GetEnv("RULES_CSV_URL") : input.rulesCsvUrl;
+                        response.results = await RunAutoPostAsync(context, postsCsvUrlAM, rulesCsvUrlAM, input.networks, true);
+                        break;
+
+                    case "recalculate":
+                        var postsCsvUrlR = string.IsNullOrWhiteSpace(input.postsCsvUrl) ? GetEnv("POSTS_CSV_URL") : input.postsCsvUrl;
+                        var rulesCsvUrlR = string.IsNullOrWhiteSpace(input.rulesCsvUrl) ? GetEnv("RULES_CSV_URL") : input.rulesCsvUrl;
+                        var plans = await RecalculatePlansAsync(context, postsCsvUrlR, rulesCsvUrlR);
+                        LogPlans(plans);
+                        break;
+
+                    case "clear":
+                        await ClearPlansAsync(context);
                         break;
 
                     default:
@@ -72,21 +87,61 @@ namespace DistributeSocialLambda
             return response;
         }
 
+        private Post CreatePost(DistributeSocialCommand input)
+        {
+            var linkUrl = string.IsNullOrWhiteSpace(input.linkUrl) ? null : new Uri(input.linkUrl);
+            var imageUrl = string.IsNullOrWhiteSpace(input.imageUrl) ? null : new Uri(input.imageUrl);
+            return new Post(input.text, input.tags, linkUrl, imageUrl);
+        }
+
+        private Post CreatePost(PlannedPostDTO input)
+        {
+            var linkUrl = string.IsNullOrWhiteSpace(input.LinkUrl) ? null : new Uri(input.LinkUrl);
+            var imageUrl = string.IsNullOrWhiteSpace(input.ImageUrl) ? null : new Uri(input.ImageUrl);
+            return new Post(input.Text, input.Tags, linkUrl, imageUrl);
+        }
+
         private async Task<NetworkPostDTO> RunAutoPostAsync(ILambdaContext context, string postsCsvUrl, string rulesCsvUrl, IEnumerable<string> networks, bool send)
         {
+            var writeBack = send;
             var results = new NetworkPostDTO();
 
             var stateBucket = GetEnv("S3_STATE_BUCKET");
             var stateKey = GetEnv("S3_STATE_KEY");
 
             var manager = new ContentManager(postsCsvUrl, rulesCsvUrl, stateBucket, stateKey, Log);
-            var listContent = await manager.RunAsync();
+            var plannedPost = await manager.RunAsync(writeBack);
 
-            Log("Next post comes from list: " + listContent.List);
-            Log("Next post: " + listContent.Content);
+            Log("Next post comes from list: " + plannedPost.ListId);
+            Log("Next post: " + JsonConvert.SerializeObject(plannedPost));
 
-            var post = new Post(listContent.Content);
-            return await PostMessagesAsync(context, post, networks, send);
+            return await PostMessagesAsync(context, CreatePost(plannedPost), networks, send);
+        }
+
+        private async Task<ContentPlanDTO> RecalculatePlansAsync(ILambdaContext context, string postsCsvUrl, string rulesCsvUrl)
+        {
+            var stateBucket = GetEnv("S3_STATE_BUCKET");
+            var stateKey = GetEnv("S3_STATE_KEY");
+
+            var manager = new ContentManager(postsCsvUrl, rulesCsvUrl, stateBucket, stateKey, Log);
+            return await manager.RecalculateAsync(true);
+        }
+
+        private async Task ClearPlansAsync(ILambdaContext context)
+        {
+            var stateBucket = GetEnv("S3_STATE_BUCKET");
+            var stateKey = GetEnv("S3_STATE_KEY");
+
+            var manager = new ContentManager(null, null, stateBucket, stateKey, Log);
+            await manager.ClearAsync(true);
+        }
+
+        private void LogPlans(ContentPlanDTO plans)
+        {
+            foreach (var pair in plans.ListPlan)
+            {
+                Log(string.Format("{0}: {1} posts", pair.Key, pair.Value.Count()));
+            }
         }
 
         private async Task<NetworkPostDTO> PostMessagesAsync(ILambdaContext context, Post post, IEnumerable<string> networks, bool send)
@@ -101,7 +156,7 @@ namespace DistributeSocialLambda
                 {
                     try
                     {
-                        var summary = await PostMessageAsync(context, network, post, send);
+                        var summary = await PostMessageAsync(network, post, send);
                         results[networkName] = summary;
                     }
                     catch (Exception e)
@@ -121,7 +176,7 @@ namespace DistributeSocialLambda
             return results;
         }
 
-        private async Task<IPostSummary> PostMessageAsync(ILambdaContext context, SocialNetwork network, Post post, bool send = false)
+        private async Task<IPostSummary> PostMessageAsync(SocialNetwork network, Post post, bool send = false)
         {
             Log("Network: " + network.ToString());
 
@@ -172,7 +227,8 @@ namespace DistributeSocialLambda
                         Log("Discording...");
                         var discorder = new DiscordPoster(discordToken);
                         await discorder.InitAsync();
-                        var discordSummary = await discorder.PostAsync(new Post(discordServer, discordChannel, post.Message, post.ImagePath));
+                        post.SetDiscordChannel(discordServer, discordChannel);
+                        var discordSummary = await discorder.PostAsync(post);
                         Log(discordSummary.Summarise());
                         return discordSummary;
                     }

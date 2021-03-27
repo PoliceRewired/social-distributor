@@ -23,15 +23,19 @@ namespace DistributeSocialLambda.Tests
             var input = new DistributeSocialCommand()
             {
                 command = "dry-run",
-                message = "test message",
+                text = "test message",
+                tags = "#test",
+                linkUrl = "https://www.google.com",
+
                 networks = new string[] { "twitter", "facebook", "discord" }
             };
 
             var result = await function.FunctionHandler(input, context);
 
+            // this is not a real test - we should seek assurances that things can really post, somehow
             Assert.Equal(result.input.command, input.command);
-            Assert.Equal(result.input.message, input.message);
 
+            // for now this test assures itself that dry-run doesn't succeed
             foreach (var network in result.results)
             {
                 Assert.Contains(network.Key, input.networks);

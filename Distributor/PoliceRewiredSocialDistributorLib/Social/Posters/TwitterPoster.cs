@@ -1,12 +1,13 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Net;
+using System.Threading.Tasks;
 using PoliceRewiredSocialDistributorLib.Social.Summary;
 using Tweetinvi;
+using Tweetinvi.Models;
+using Tweetinvi.Parameters;
 
 namespace PoliceRewiredSocialDistributorLib.Social.Posters
 {
-    /// <summary>
-    /// TODO: add image posting for Tweets
-    /// </summary>
     public class TwitterPoster : IPoster
     {
         private TwitterClient client;
@@ -25,8 +26,36 @@ namespace PoliceRewiredSocialDistributorLib.Social.Posters
 
         public async Task<IPostSummary> PostAsync(Post post)
         {
-            var tweet = await client.Tweets.PublishTweetAsync(post.Message);
+            PublishTweetParameters parameters;
+            if (post.Image == null)
+            {
+                parameters = new PublishTweetParameters()
+                {
+                    Text = post.MessageTwitter
+                };
+            }
+            else
+            {
+                var media = await UploadImageAsync(post.Image);
+                parameters = new PublishTweetParameters()
+                {
+                    Text = post.MessageTwitter,
+                    Medias = { media }
+                };
+            }
+
+            var tweet = await client.Tweets.PublishTweetAsync(parameters);
             return new TweetSummary(post, tweet);
+        }
+
+        private async Task<IMedia> UploadImageAsync(Uri image)
+        {
+            using (var http = new WebClient())
+            {
+                var imageBinary = await http.DownloadDataTaskAsync(image.AbsoluteUri);
+                var uploadedImage = await client.Upload.UploadTweetImageAsync(imageBinary);
+                return uploadedImage;
+            }
         }
     }
 

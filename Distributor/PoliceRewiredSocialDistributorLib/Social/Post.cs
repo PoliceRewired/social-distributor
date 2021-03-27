@@ -6,29 +6,60 @@ namespace PoliceRewiredSocialDistributorLib.Social
     public class Post
     {
         public DateTime Created { get; private set; }
-        public string Message { get; private set; }
-        public string ImagePath { get; private set; }
-        public ulong ServerId { get; private set; }
-        public string Channel { get; private set; }
 
-        public Post(string message, string imagePath = null)
+        public Uri Image { get; private set; }
+        public Uri Link { get; private set; }
+        public string Tags { get; set; }
+        public string Text { get; set; }
+
+        public ulong DiscordServerId { get; private set; }
+        public string DiscordChannel { get; private set; }
+
+        public Post(string text, string tags, Uri link, Uri image)
         {
             Created = DateTime.Now;
-            Message = message;
-            ImagePath = imagePath;
+            Tags = tags;
+            Text = text;
+            Image = image;
+            Link = link;
+        }
 
-            // quick check
-            if (imagePath != null && !File.Exists(imagePath))
+        public string MessageDiscord
+        {
+            get
             {
-                throw new FileNotFoundException("Image file not found.", imagePath);
+                return string.Format("{0}\n{1}", Text, Link.AbsoluteUri);
             }
         }
 
-        public Post(ulong serverId, string channel, string message, string imagePath = null) : this(message, imagePath)
+        public string MessageFacebook
         {
-            ServerId = serverId;
-            Channel = channel;
+            get
+            {
+                return string.Format("{0} {1}", Text, Tags);
+            }
         }
 
+        public string MessageFacebookIncLink
+        {
+            get
+            {
+                return string.Format("{0} {1}\n{2}", Text, Tags, Link.AbsoluteUri);
+            }
+        }
+
+        public string MessageTwitter
+        {
+            get
+            {
+                return string.Format("{0} {1}\n{2}", Text, Tags, Link.AbsoluteUri);
+            }
+        }
+
+        public void SetDiscordChannel(ulong serverId, string channel)
+        {
+            DiscordServerId = serverId;
+            DiscordChannel = channel;
+        }
     }
 }

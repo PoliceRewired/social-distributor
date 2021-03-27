@@ -1,8 +1,10 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
+using Discord.Rest;
 using Discord.WebSocket;
 using PoliceRewiredSocialDistributorLib.Social.Summary;
 
@@ -15,9 +17,6 @@ namespace PoliceRewiredSocialDistributorLib.Social.Posters
         private bool ready = false;
         private SemaphoreSlim readySemaphore = new SemaphoreSlim(0, 1);
 
-        /// <summary>
-        /// TODO: add image posting for discord messages
-        /// </summary>
         public DiscordPoster(string token)
         {
             this.token = token;
@@ -50,17 +49,32 @@ namespace PoliceRewiredSocialDistributorLib.Social.Posters
             Console.WriteLine("Waiting to post to Discord");
             if (!ready) { await readySemaphore.WaitAsync(); }
 
-            var guild = client.GetGuild(post.ServerId);
-            Console.WriteLine("Server: " + post.ServerId + " = " + guild.Name);
+            var guild = client.GetGuild(post.DiscordServerId);
+            Console.WriteLine("Server: " + post.DiscordServerId + " = " + guild.Name);
 
-            var result =
-                await client
-                    .GetGuild(post.ServerId)
-                    .TextChannels.Single(c => c.Name.ToLower() == post.Channel.ToLower())
-                    .SendMessageAsync(post.Message);
+            RestUserMessage result;
+            if (post.Image == null)
+            {
+                result =
+                    await client
+                        .GetGuild(post.DiscordServerId)
+                        .TextChannels.Single(c => c.Name.ToLower() == post.DiscordChannel.ToLower())
+                        .SendMessageAsync(post.MessageDiscord);
+            }
+            else
+            {
+                var embed = new EmbedBuilder()
+                    .WithImageUrl(post.Image.AbsoluteUri)
+                    .Build();
+
+                result =
+                    await client
+                        .GetGuild(post.DiscordServerId)
+                        .TextChannels.Single(c => c.Name.ToLower() == post.DiscordChannel.ToLower())
+                        .SendMessageAsync(post.MessageDiscord, embed: embed);
+            }
 
             await client.StopAsync();
-
             return new DiscordPostSummary(post, result);
         }
 
