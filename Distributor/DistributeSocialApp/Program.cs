@@ -71,6 +71,18 @@ namespace DistributeSocialApp
                     var discordSummary = await discorder.PostAsync(post);
                     Console.WriteLine(discordSummary.Summarise());
                     break;
+                case SocialNetwork.reddit:
+                    var redditClientId = GetEnv("REDDIT_CLIENT_ID");
+                    var redditClientSecret = GetEnv("REDDIT_CLIENT_SECRET");
+                    var redditUsername = GetEnv("REDDIT_USERNAME");
+                    var redditPassword = GetEnv("REDDIT_PASSWORD");
+                    var redditSubreddit = GetEnv("REDDIT_SUBREDDIT");
+                    post.SetSubreddit(redditSubreddit);
+                    var redditer = new RedditPoster(redditClientId, redditClientSecret, redditUsername, redditPassword);
+                    await redditer.InitAsync();
+                    var redditSummary = await redditer.PostAsync(post);
+                    Console.WriteLine(redditSummary.Summarise());
+                    break;
                 default:
                     var networks = string.Join(", ", Enum.GetNames(typeof(SocialNetwork)));
                     throw new ArgumentOutOfRangeException("network", "Please specify a supported network. Choices are: " + networks);

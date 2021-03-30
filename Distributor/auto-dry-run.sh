@@ -3,7 +3,7 @@
 PAYLOAD=$(cat << 'EOF'
 { 
     "command": "auto-dry-run", 
-    "networks": [ "facebook", "twitter", "discord" ]
+    "networks": [ "facebook", "twitter", "reddit", "discord" ]
 }
 EOF
 )

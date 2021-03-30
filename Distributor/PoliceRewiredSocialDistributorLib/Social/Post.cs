@@ -15,6 +15,8 @@ namespace PoliceRewiredSocialDistributorLib.Social
         public ulong DiscordServerId { get; private set; }
         public string DiscordChannel { get; private set; }
 
+        public string Subreddit { get; private set; }
+
         public Post(string text, string tags, Uri link, Uri image)
         {
             Created = DateTime.Now;
@@ -56,10 +58,32 @@ namespace PoliceRewiredSocialDistributorLib.Social
             }
         }
 
+        public string TitleReddit
+        {
+            get
+            {
+                return string.Format("{0}", Text);
+            }
+        }
+
+        [Obsolete("Use TitleReddit, and provide a link")]
+        public string FullMessageReddit
+        {
+            get
+            {
+                return string.Format("{0}\n\n{1}\n\n{2}", Text, Link.AbsoluteUri, Tags);
+            }
+        }
+
         public void SetDiscordChannel(ulong serverId, string channel)
         {
             DiscordServerId = serverId;
             DiscordChannel = channel;
+        }
+
+        public void SetSubreddit(string subreddit)
+        {
+            Subreddit = subreddit;
         }
     }
 }

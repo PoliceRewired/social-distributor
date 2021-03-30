@@ -238,6 +238,28 @@ namespace DistributeSocialLambda
                         return new PostSummary(post, "Not attempted.");
                     }
 
+                case SocialNetwork.reddit:
+                    var redditClientId = GetEnv("REDDIT_CLIENT_ID");
+                    var redditClientSecret = GetEnv("REDDIT_CLIENT_SECRET");
+                    var redditUsername = GetEnv("REDDIT_USERNAME");
+                    var redditPassword = GetEnv("REDDIT_PASSWORD");
+                    var redditSubreddit = GetEnv("REDDIT_SUBREDDIT");
+                    post.SetSubreddit(redditSubreddit);
+                    if (send)
+                    {
+                        Log("Reditting...");
+                        var redditer = new RedditPoster(redditClientId, redditClientSecret, redditUsername, redditPassword);
+                        await redditer.InitAsync();
+                        var redditSummary = await redditer.PostAsync(post);
+                        Log(redditSummary.Summarise());
+                        return redditSummary;
+                    }
+                    else
+                    {
+                        Log("Not redditing...");
+                        return new PostSummary(post, "Not attempted.");
+                    }
+
                 default:
                     var networks = string.Join(", ", Enum.GetNames(typeof(SocialNetwork)));
                     throw new ArgumentOutOfRangeException("network", network.ToString() + " is not supported. Choices are: " + networks);

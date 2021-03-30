@@ -3,7 +3,7 @@
 PAYLOAD=$(cat << 'EOF'
 { 
     "command": "post-dry-run", 
-    "networks": [ "facebook", "twitter", "discord" ], 
+    "networks": [ "facebook", "twitter", "reddit", "discord" ], 
     "text": "This is a test of our social library, across all channels.",
     "tags": "#test",
     "linkUrl": "https://policerewired.org",

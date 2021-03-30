@@ -3,7 +3,7 @@
 PAYLOAD=$(cat << 'EOF'
 { 
     "command": "auto-message", 
-    "networks": [ "facebook", "twitter", "discord" ]
+    "networks": [ "facebook", "twitter", "reddit", "discord" ]
 }
 EOF
 )
