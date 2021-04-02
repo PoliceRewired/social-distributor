@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using PoliceRewiredSocialDistributorLib.Helpers;
 using PoliceRewiredSocialDistributorLib.Social.Summary;
 using RedditSharp;
 
@@ -37,7 +38,8 @@ namespace PoliceRewiredSocialDistributorLib.Social.Posters
         public async Task<IPostSummary> PostAsync(Post post)
         {
             var subreddit = await reddit.GetSubredditAsync(post.Subreddit);
-            var posted = await subreddit.SubmitPostAsync(post.TitleReddit, post.Link.AbsoluteUri);
+            var finalLink = await UrlHelper.ResolveUrlAsync(post.Link);
+            var posted = await subreddit.SubmitPostAsync(post.TitleReddit, finalLink.AbsoluteUri);
             return new PostSummary(true);
         }
     }

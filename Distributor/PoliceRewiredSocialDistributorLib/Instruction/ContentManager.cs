@@ -139,14 +139,7 @@ namespace PoliceRewiredSocialDistributorLib.Instruction
 
             // randomise list and return in plan form
             return listPosts
-                .Select(p => new PlannedPostDTO
-                {
-                    ListId = p.ListId,
-                    Text = p.Text,
-                    Tags = p.Tags,
-                    ImageUrl = p.ImageURL,
-                    LinkUrl = p.URL
-                })
+                .Select(p => new PlannedPostDTO(p))
                 .OrderBy(x => Guid.NewGuid())
                 .ToList();
         }
