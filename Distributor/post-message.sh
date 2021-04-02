@@ -3,11 +3,11 @@
 PAYLOAD=$(cat << 'EOF'
 { 
     "command": "post-message", 
-    "networks": [ "facebook", "twitter" ], 
-    "text": "Standard Operating Procedure for the police-issue MetWhistle, 2012",
-    "tags": "#sop #whistle #policing #crime #disorder",
-    "linkUrl": "https://github.com/PoliceRewired/social-distributor-resources/raw/main/docs/metwhistle-sop.pdf",
-    "imageUrl": "https://github.com/PoliceRewired/social-distributor-resources/raw/main/docs/metwhistle-cover.png"
+    "networks": [ "facebook", "twitter", "discord", "reddit" ], 
+    "text": "This is a test of our social sharing tool.",
+    "tags": "#test",
+    "linkUrl": "https://policerewired.org",
+    "imageUrl": "https://github.com/PoliceRewired/social-distributor-resources/raw/main/images/test-card.jpeg"
 }
 EOF
 )
