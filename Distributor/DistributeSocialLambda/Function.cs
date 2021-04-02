@@ -163,12 +163,12 @@ namespace DistributeSocialLambda
                     {
                         Log(e.Message);
                         Log(e.StackTrace);
-                        results[networkName] = new PostSummary(post, e);
+                        results[networkName] = new PostSummary(e);
                     }
                 }
                 else
                 {
-                    results[network.ToString()] = new PostSummary(post, "Network " + networkName + " not recognised.");
+                    results[network.ToString()] = new PostSummary("Network " + networkName + " not recognised.");
                     Log("Network " + networkName + " not recognised.");
                 }
             }
@@ -198,7 +198,7 @@ namespace DistributeSocialLambda
                     else
                     {
                         Log("Not tweeting...");
-                        return new PostSummary(post, "Not attempted.");
+                        return new PostSummary("Not attempted.");
                     }
 
                 case SocialNetwork.facebook:
@@ -215,7 +215,7 @@ namespace DistributeSocialLambda
                     else
                     {
                         Log("Not facebooking...");
-                        return new PostSummary(post, "Not attempted.");
+                        return new PostSummary("Not attempted.");
                     }
 
                 case SocialNetwork.discord:
@@ -235,7 +235,7 @@ namespace DistributeSocialLambda
                     else
                     {
                         Log("Not discording...");
-                        return new PostSummary(post, "Not attempted.");
+                        return new PostSummary("Not attempted.");
                     }
 
                 case SocialNetwork.reddit:
@@ -257,7 +257,7 @@ namespace DistributeSocialLambda
                     else
                     {
                         Log("Not redditing...");
-                        return new PostSummary(post, "Not attempted.");
+                        return new PostSummary("Not attempted.");
                     }
 
                 default:

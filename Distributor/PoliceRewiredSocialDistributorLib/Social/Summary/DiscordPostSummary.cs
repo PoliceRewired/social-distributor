@@ -7,11 +7,11 @@ namespace PoliceRewiredSocialDistributorLib.Social.Summary
     {
         RestUserMessage result;
 
-        public DiscordPostSummary(Post post, RestUserMessage result) : base(post)
+        public DiscordPostSummary(RestUserMessage result) : base()
         {
             this.result = result;
         }
 
-        public RestUserMessage Result => result;
+        internal RestUserMessage Result => result;
     }
 }

@@ -38,7 +38,7 @@ namespace PoliceRewiredSocialDistributorLib.Social.Posters
         {
             var subreddit = await reddit.GetSubredditAsync(post.Subreddit);
             var posted = await subreddit.SubmitPostAsync(post.TitleReddit, post.Link.AbsoluteUri);
-            return new PostSummary(post, true);
+            return new PostSummary(true);
         }
     }
 }

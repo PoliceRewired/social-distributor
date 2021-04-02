@@ -75,7 +75,7 @@ namespace PoliceRewiredSocialDistributorLib.Social.Posters
             }
 
             await client.StopAsync();
-            return new DiscordPostSummary(post, result);
+            return new DiscordPostSummary(result);
         }
 
         private Task Log(LogMessage msg)

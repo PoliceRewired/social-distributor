@@ -45,7 +45,7 @@ namespace PoliceRewiredSocialDistributorLib.Social.Posters
             }
 
             var tweet = await client.Tweets.PublishTweetAsync(parameters);
-            return new TweetSummary(post, tweet);
+            return new TweetSummary(tweet);
         }
 
         private async Task<IMedia> UploadImageAsync(Uri image)

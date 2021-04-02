@@ -3,32 +3,28 @@ namespace PoliceRewiredSocialDistributorLib.Social.Summary
 {
     public class PostSummary : IPostSummary
     {
-        private Post post;
         private DateTime posted;
         private string failureReason;
         private bool success;
         private Exception exception;
 
-        public PostSummary(Post post, bool success = true, string reason = null)
+        public PostSummary(bool success = true, string reason = null)
         {
-            this.post = post;
             this.posted = DateTime.Now;
             this.success = success;
             this.failureReason = reason;
         }
 
-        public PostSummary(Post post, Exception exception)
+        public PostSummary(Exception exception)
         {
-            this.post = post;
             this.posted = DateTime.Now;
             this.success = false;
             this.exception = exception;
             this.failureReason = exception.Message;
         }
 
-        public PostSummary(Post post, string failure, Exception exception = null)
+        public PostSummary(string failure, Exception exception = null)
         {
-            this.post = post;
             this.posted = DateTime.Now;
             this.success = false;
             this.exception = exception;
@@ -42,8 +38,6 @@ namespace PoliceRewiredSocialDistributorLib.Social.Summary
         public Exception Exception => exception;
 
         public string FailureReason => failureReason;
-
-        public Post Request => post;
 
         public string Summarise()
         {

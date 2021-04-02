@@ -5,7 +5,7 @@ namespace PoliceRewiredSocialDistributorLib.Social.Summary
     {
         private string result;
 
-        public FbPostSummary(Post post, string result) : base(post)
+        public FbPostSummary(string result) : base()
         {
             this.result = result;
         }

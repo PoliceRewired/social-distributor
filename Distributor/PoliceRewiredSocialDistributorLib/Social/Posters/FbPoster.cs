@@ -32,12 +32,12 @@ namespace PoliceRewiredSocialDistributorLib.Social.Posters
             if (post.Image != null)
             {
                 var response = await UploadMessageImageAsync(post.MessageFacebookIncLink, post.Image);
-                return new FbPostSummary(post, response != null ? "Success: " + response : "Failed");
+                return new FbPostSummary(response != null ? "Success: " + response : "Failed");
             }
             else
             {
                 var response = await UploadMessageOnlyAsync(post.MessageFacebook, post.Link);
-                return new FbPostSummary(post, response != null ? "Success: " + response : "Failed");
+                return new FbPostSummary(response != null ? "Success: " + response : "Failed");
             }
         }
 

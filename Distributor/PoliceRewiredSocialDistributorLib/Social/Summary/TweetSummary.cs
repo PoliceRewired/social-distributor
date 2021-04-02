@@ -8,7 +8,7 @@ namespace PoliceRewiredSocialDistributorLib.Social.Summary
     {
         private ITweet tweet;
 
-        public TweetSummary(Post post, ITweet tweet) : base(post)
+        public TweetSummary(ITweet tweet) : base()
         {
             this.tweet = tweet;
         }
