@@ -7,8 +7,10 @@ using PoliceRewiredSocialDistributorLib.Social.Summary;
 
 namespace PoliceRewiredSocialDistributorLib.Social.Posters
 {
+    // See: https://ermir.net/topic-10/how-to-publish-a-message-to-a-facebook-page-using-a-dotnet-console-application
     public class FbPoster : IPoster
     {
+
         private static readonly string FB_BASE_ADDRESS = "https://graph.facebook.com/";
 
         private long pageId;
